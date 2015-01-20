@@ -2,12 +2,24 @@ defmodule Tirexs.Mixfile do
   use Mix.Project
 
   def project do
-    [ app: :tirexs, version: "0.5.0",deps: deps ]
+    [ 
+    	app: :tirexs, 
+      version: "0.5.0", 
+      elixir: "~> 1.0.1 or ~> 1.1",
+      deps: deps 
+    ]
   end
 
-  def application, do: []
+  def application do
+    [
+      env: [],
+      applications: [:logger] 
+    ]
+  end
 
   defp deps do
-    [ {:jsex, github: "talentdeficit/jsex"} ]
+    [ 
+    	{:poison, "~> 1.3"} 
+    ]
   end
 end

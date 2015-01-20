@@ -8,18 +8,21 @@ defmodule Acceptances.ManageTest do
 
   import Tirexs.Query
   import Tirexs.Mapping, only: :macros
+  alias  Tirexs.ElasticSearch.Config
+  alias  Tirexs.Json
 
-  @settings Tirexs.ElasticSearch.Config.new()
+  require Logger
 
-  setup do
+  @settings %Config{}
+
+  setup_all do
     create_index("bear_test", @settings)
-    :ok
+
+    on_exit fn() ->
+      remove_index("bear_test", @settings)
+    end
   end
 
-  teardown do
-    remove_index("bear_test", @settings)
-    :ok
-  end
 
   test :count do
     {:ok, 200, body} = repeat fn -> Tirexs.Manage.count([index: "bear_test"], @settings) end
@@ -71,12 +74,15 @@ defmodule Acceptances.ManageTest do
     Tirexs.Manage.refresh(["bear_test"], @settings)
 
     {_, _, body} = Tirexs.Manage.more_like_this([id: 1, type: "my_type", index: "bear_test", mlt_fields: "name,description", min_term_freq: 1], @settings)
+
+    IO.puts "more_like_this body: #{inspect body, pretty: true}"
+
     assert Dict.get(body, :hits) |> Dict.get(:hits) == []
   end
 
   test :validate_and_explain do
     doc = [user: "kimchy", post_date: "2009-11-15T14:12:12", message: "trying out Elastic Search"]
-    Tirexs.ElasticSearch.put("bear_test/my_type/1", JSEX.encode!(doc), @settings)
+    Tirexs.ElasticSearch.put("bear_test/my_type/1", Json.encode!(doc), @settings)
 
     query = query do
       filtered do
@@ -97,14 +103,18 @@ defmodule Acceptances.ManageTest do
     assert Dict.get(body, :valid) == true
 
     {_, _, body} = Tirexs.Manage.explain([index: "bear_test", type: "my_type", id: 1, q: "message:search"], @settings)
-    body = JSEX.decode!(to_string(body), [{:labels, :atom}])
+
+    # body = Poison.decode!(to_string(body), keys: :atoms)
+
+    Logger.info "explain body: #{inspect body, pretty: true}"
+
     assert Dict.get(body, :matched) == false
   end
 
   test :update do
     Tirexs.ElasticSearch.put("bear_test/my_type", @settings)
     doc = [user: "kimchy", counter: 1, post_date: "2009-11-15T14:12:12", message: "trying out Elastic Search", id: 1]
-    Tirexs.ElasticSearch.put("bear_test/my_type/1", JSEX.encode!(doc), @settings)
+    Tirexs.ElasticSearch.put("bear_test/my_type/1", Json.encode!(doc), @settings)
 
     {_, _, body} = Tirexs.ElasticSearch.get("bear_test/my_type/1", @settings)
 

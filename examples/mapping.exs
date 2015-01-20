@@ -10,9 +10,11 @@
 #
 import Tirexs.Mapping
 
+alias Tirexs.ElasticSearch.Config
+
 Tirexs.DSL.define [type: "dsl", index: "test_dsl_index"], fn(index, _) ->
 
-  elastic_settings = Tirexs.ElasticSearch.Config.new([user: "new_user"])
+  elastic_settings = %Config{user: "new_user"}
 
    mappings do
      indexes "mn_opts_", [type: "nested"] do
@@ -31,7 +33,7 @@ Tirexs.DSL.define [type: "dsl", index: "test_dsl_index"], fn(index, _) ->
    # Below a couple of code which could be useful for debugging
 
    # url  = Tirexs.ElasticSearch.make_url(index[:index], elastic_settings)
-   # json = JSEX.prettify!(Tirexs.Mapping.to_resource_json(index))
+   # json = Poison.prettify!(Tirexs.Mapping.to_resource_json(index))
    # IO.puts "\n # => curl -X PUT -d '#{json}' #{url}"
 
    { index, elastic_settings }

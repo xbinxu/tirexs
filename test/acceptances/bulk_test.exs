@@ -1,11 +1,13 @@
 Code.require_file "../../test_helper.exs", __ENV__.file
 
 defmodule Acceptances.BulkTest do
-  use ExUnit.Case
+  use    ExUnit.Case
+  alias  Tirexs.ElasticSearch.Config 
   import Tirexs.Bulk
+  require Logger
 
   test :create do
-    settings = Tirexs.ElasticSearch.Config.new()
+    settings = %Config{}
 
         Tirexs.ElasticSearch.delete("bear_test", settings)
 
@@ -26,13 +28,16 @@ defmodule Acceptances.BulkTest do
         end
 
         Tirexs.Manage.refresh("bear_test", settings)
+        response = Tirexs.ElasticSearch.get("bear_test/_count", settings)
+        Logger.info "get bear_test/_count, response: #{inspect response, pretty: true}"
         {_, _, body} = Tirexs.ElasticSearch.get("bear_test/_count", settings)
         assert body[:count] == 11
   end
 
   test :update do
-    settings = Tirexs.ElasticSearch.Config.new()
-      Tirexs.ElasticSearch.delete("bear_test", settings)
+    settings = %Config{}
+    
+    Tirexs.ElasticSearch.delete("bear_test", settings)
 
     Tirexs.Bulk.store [index: "bear_test", refresh: false], settings do
         create id: 1, title: "bar1", description: "foo bar test"

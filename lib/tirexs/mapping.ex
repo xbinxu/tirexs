@@ -1,7 +1,8 @@
 defmodule Tirexs.Mapping do
   @moduledoc false
 
-  use Tirexs.DSL.Logic
+  use    Tirexs.DSL.Logic
+  alias  Tirexs.Json
   import Tirexs.ElasticSearch
 
 
@@ -71,6 +72,6 @@ defmodule Tirexs.Mapping do
   @doc false
   def to_resource_json(definition, type) do
     json_dict = Dict.put([], to_atom(type), definition[:mapping])
-		JSEX.encode!(json_dict)
+		Json.encode!(json_dict)
   end
 end

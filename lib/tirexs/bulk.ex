@@ -2,6 +2,7 @@ defmodule Tirexs.Bulk do
   @moduledoc false
 
   import Tirexs.DSL.Logic
+  alias  Tirexs.Json
 
   defmacro store(options, settings, [do: block]) do
     documents = extract_block(block)
@@ -51,13 +52,14 @@ defmodule Tirexs.Bulk do
       [document, meta] = meta([:_version, :_routing, :_percolate, :_parent, :_timestamp, :_ttl], document, header)
       header = Dict.put([], action, meta)
 
-      output = []
-      output =  output ++ [JSEX.encode!(header)]
+      output = [] 
+      output =  output ++ [Json.encode!(header)]
       unless action == :delete do
         output =  output ++ [convert_document_to_json(document)]
       end
       Enum.join(output, "\n")
     end
+    
     payload = payload ++ [""]
     payload = Enum.join(payload, "\n")
     Tirexs.ElasticSearch.post("_bulk" <> to_param(options, ""), payload, settings)
@@ -80,7 +82,7 @@ defmodule Tirexs.Bulk do
   end
 
   def convert_document_to_json(document) do
-    JSEX.encode!(document)
+    Json.encode!(document)
   end
 
   def get_type_from_document(document) do

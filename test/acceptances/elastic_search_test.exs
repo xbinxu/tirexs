@@ -3,6 +3,7 @@ Code.require_file "../../test_helper.exs", __ENV__.file
 defmodule Acceptances.ElasticSearchTest do
 
   use ExUnit.Case
+  alias  Tirexs.ElasticSearch.Config
   import Tirexs.Mapping, only: :macros
   import Tirexs.Bulk
   import Tirexs.ElasticSearch
@@ -10,7 +11,8 @@ defmodule Acceptances.ElasticSearchTest do
 
 
   test :get_elastic_search_server do
-    settings = Tirexs.ElasticSearch.Config.new()
+    settings = %Config{}
+
     {:error, _, _}  = get("missing_index", settings)
     {:ok, _, body}    = get("", settings)
 
@@ -19,7 +21,8 @@ defmodule Acceptances.ElasticSearchTest do
   end
 
   test :create_index do
-    settings = Tirexs.ElasticSearch.Config.new()
+    settings = %Config{}
+
     delete("bear_test", settings)
     {:ok, _, body} = put("bear_test", settings)
     assert body[:acknowledged] == true
@@ -27,7 +30,8 @@ defmodule Acceptances.ElasticSearchTest do
   end
 
   test :delete_index do
-    settings = Tirexs.ElasticSearch.Config.new()
+    settings = %Config{}
+
     put("bear_test", settings)
     {:ok, _, body} = delete("bear_test", settings)
     assert body[:acknowledged] == true
@@ -35,7 +39,8 @@ defmodule Acceptances.ElasticSearchTest do
 
 
   test :head do
-    settings = Tirexs.ElasticSearch.Config.new()
+    settings = %Config{}
+
     delete("bear_test", settings)
     assert exist?("bear_test", settings) == false
 
@@ -45,7 +50,8 @@ defmodule Acceptances.ElasticSearchTest do
   end
 
   test :create_type_mapping do
-    settings = Tirexs.ElasticSearch.Config.new()
+    settings = %Config{}
+    
     index = [index: "bear_test", type: "bear_type"]
       mappings do
         indexes "mn_opts_", [type: "object"] do
@@ -75,7 +81,7 @@ defmodule Acceptances.ElasticSearchTest do
   end
 
   test :create_mapping_search do
-    settings = Tirexs.ElasticSearch.Config.new()
+    settings = %Config{}
 
     delete("articles", settings)
 

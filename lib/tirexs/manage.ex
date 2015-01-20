@@ -1,12 +1,13 @@
 defmodule Tirexs.Manage do
   import Tirexs.DSL.Logic
+  alias  Tirexs.Json
 
   def count(options, settings) do
     execute_get_if_body_empty_and_post_otherwise("_count", options, settings)
   end
 
   def delete_by_query(options, settings) do
-    _body = JSEX.encode!(options[:filter] || options[:query] || [])
+    _body = Json.encode!(options[:filter] || options[:query] || [])
     #To do add DELETE with body
     Tirexs.ElasticSearch.delete(make_url("_query", options), settings)
   end
@@ -24,7 +25,7 @@ defmodule Tirexs.Manage do
   end
 
   def update(options, update_params, settings) do
-    Tirexs.ElasticSearch.post(make_url("_update", options), JSEX.encode!(update_params), settings)
+    Tirexs.ElasticSearch.post(make_url("_update", options), Json.encode!(update_params), settings)
   end
 
   def create(:warmer, options, settings) do
@@ -33,7 +34,7 @@ defmodule Tirexs.Manage do
     Tirexs.ElasticSearch.put("bear_test/_warmer/warmer_1", settings)
     Enum.each Dict.keys(warmers), fn(key) ->
       url = make_url(to_string(key), options)
-      body = JSEX.encode!(warmers[key][:source])
+      body = Json.encode!(warmers[key][:source])
       Tirexs.ElasticSearch.put(url, body, settings)
     end
   end
@@ -80,8 +81,8 @@ defmodule Tirexs.Manage do
         options[:query] -> [query: options[:query]]
         true -> []
       end
-    case JSEX.encode!(body) do
-      "[]" -> Tirexs.ElasticSearch.get(make_url(url_suffix, options), settings)
+    case Json.encode!(body) do
+      "{}" -> Tirexs.ElasticSearch.get(make_url(url_suffix, options), settings)
       body -> Tirexs.ElasticSearch.post(make_url(url_suffix, options), body, settings)
     end
   end

@@ -2,8 +2,8 @@ defmodule Tirexs.Percolator do
   @moduledoc false
 
   use Tirexs.DSL.Logic
-
-  alias Tirexs.Query, as: Query
+  alias Tirexs.Json
+  alias Tirexs.Query
 
   def transpose(block) do
     case block do
@@ -45,7 +45,8 @@ defmodule Tirexs.Percolator do
     definition = Dict.delete(definition, :index)
     definition = Dict.delete(definition, :type)
     definition = Dict.delete(definition, :name)
-    JSEX.encode!(definition)
+
+    Json.encode!(definition)
   end
 
   def matches(definition, settings) do

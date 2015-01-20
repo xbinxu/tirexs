@@ -5,8 +5,15 @@ defmodule Tirexs.Query do
 
   import Tirexs.DSL.Logic
   import Tirexs.Query.Logic
+  alias  Tirexs.Json
 
-  defrecord Result, [count: 0, max_score: nil, facets: [], hits: [], _scroll_id: nil]
+  defmodule Result do 
+    defstruct count: 0, 
+              max_score: nil, 
+              facets: [], 
+              hits: [], 
+              _scroll_id: nil
+  end
 
 
   @doc false
@@ -427,11 +434,17 @@ defmodule Tirexs.Query do
         facets    = result[:facets]
         max_score = result[:hits][:max_score]
         scroll_id = result[:_scroll_id]
-        Result.new(count: count, hits: hits, facets: facets, max_score: max_score, _scroll_id: scroll_id)
+        
+        %Result{count: count, 
+                hits: hits, 
+                facets: facets, 
+                max_score: max_score, 
+                _scroll_id: scroll_id}
+
       result  -> result
     end
   end
 
   @doc false
-  def to_resource_json(definition), do: JSEX.encode!(definition[:search])
+  def to_resource_json(definition), do: Json.encode!(definition[:search])
 end

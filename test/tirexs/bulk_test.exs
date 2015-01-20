@@ -23,7 +23,7 @@ defmodule Tirexs.BulkTest do
   test :convert_document_to_json do
     document = [id: "id", title: "Hello"]
 
-    assert convert_document_to_json(document) == "{\"id\":\"id\",\"title\":\"Hello\"}"
+    assert convert_document_to_json(document) == "{\"title\":\"Hello\",\"id\":\"id\"}"
   end
 
   test :get_type_from_document do

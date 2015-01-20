@@ -10,6 +10,8 @@
 #
 import Tirexs.Search
 
+require Logger
+
 Tirexs.DSL.define fn(elastic_settings) ->
   # We'll use the `nested` query to search for articles where _John_ left a _"Cool"_ message:
   #
@@ -28,9 +30,16 @@ Tirexs.DSL.define fn(elastic_settings) ->
     end
   end
 
+  Logger.info "search: \n#{inspect search, pretty: true}"
+  
+  url  = Tirexs.ElasticSearch.make_url(search[:index] <> "/_search", elastic_settings)
+  json = Tirexs.Query.to_resource_json(search)
+
+  Logger.info "\n # => curl -X POST -d '#{json}' #{url}" 
+
   # Below a couple of code which could be useful for debugging
   # url  = Tirexs.ElasticSearch.make_url(search[:index] <> "/_search", elastic_settings)
-  # json = JSEX.prettify!(Tirexs.Query.to_resource_json(search))
+  # json = Poison.prettify!(Tirexs.Query.to_resource_json(search))
   # IO.puts "\n # => curl -X POST -d '#{json}' #{url}"
 
   { search, elastic_settings }

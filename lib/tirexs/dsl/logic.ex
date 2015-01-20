@@ -22,22 +22,18 @@ defmodule Tirexs.DSL.Logic do
 
   @doc false
   def extract_block([]), do: []
-  def extract_block(block) do
-    case block do
-      {:__block__, _, block_list} -> block_list
-      _ -> block
-    end
-  end
+  def extract_block({:__block__, _, block_list}), do: block_list
+  def extract_block(block), do: block
 
   @doc false
   def to_atom(value) when is_atom(value), do: value
-  def to_atom(value) when is_binary(value), do: binary_to_atom(value)
+  def to_atom(value) when is_bitstring(value), do: String.to_atom(value)
   def to_atom(value), do: value
 
-  @doc false
-  def is_dict?(dict) do
-    is_record(dict, Dict) || false
-  end
+  # @doc false
+  # def is_dict?(dict) do
+  #   is_record(dict, Dict) || false
+  # end
 
   @doc false
   def to_array(dict), do: to_array(dict, [])

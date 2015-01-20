@@ -2,6 +2,7 @@ defmodule Tirexs.River do
   @moduledoc false
 
   import Tirexs.ElasticSearch
+  alias  Tirexs.Json
 
   @doc false
   defmacro __using__(_) do
@@ -47,6 +48,6 @@ defmodule Tirexs.River do
   @doc false
   def to_resource_json(definition) do
     definition = Dict.delete(Dict.delete(definition, :name), :river)
-    JSEX.encode!(definition)
+    Json.encode!(definition)
   end
 end

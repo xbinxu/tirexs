@@ -1,10 +1,17 @@
 defmodule Tirexs.ElasticSearch do
 
+  require Logger
+
   @doc """
   This module provides a simple convenience for connection options such as `port`, `uri`, `user`, `pass`
   and functions for doing a `HTTP` request to `ElasticSearch` engine directly.
   """
-  defrecord Config,  [port: 9200, uri: "127.0.0.1", user: nil, pass: nil]
+  defmodule Config do 
+    defstruct port: 9200, 
+              uri: "127.0.0.1", 
+              user: nil, 
+              pass: nil
+  end
 
   @doc false
   def get(query_url, config) do
@@ -50,11 +57,11 @@ defmodule Tirexs.ElasticSearch do
     end
   end
 
-
   @doc false
   def do_request(url, method, body \\ []) do
+    # Logger.info "httpc request #{url}, #{method}, body: #{inspect body, pretty: true}"
     :inets.start()
-    { url, content_type, options } = { String.to_char_list!(url), 'application/json', [{:body_format, :binary}] }
+    { url, content_type, options } = { String.to_char_list(url), 'application/json', [{:body_format, :binary}] }
     case method do
       :get    -> response(:httpc.request(method, {url, []}, [], []))
       :head   -> response(:httpc.request(method, {url, []}, [], []))
@@ -64,8 +71,8 @@ defmodule Tirexs.ElasticSearch do
     end
   end
 
-
   defp response(req) do
+    # Logger.info "httpc response: #{inspect req, pretty: true}"
     case req do
       {:ok, { {_, status, _}, _, body}} ->
         if round(status / 100) == 4 || round(status / 100) == 5 do
@@ -76,11 +83,12 @@ defmodule Tirexs.ElasticSearch do
             _  -> { :ok, status, get_body_json(body) }
           end
         end
-      _ -> :error
+      e ->
+        :error
     end
   end
 
-  def get_body_json(body), do: JSEX.decode!(to_string(body), [{:labels, :atom}])
+  def get_body_json(body), do: Poison.decode!(to_string(body), keys: :atoms)
 
   def make_url(query_url, config) do
     if config.port == nil || config.port == 80 do

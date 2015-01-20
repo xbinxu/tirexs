@@ -1,13 +1,15 @@
 Code.require_file "../../test_helper.exs", __ENV__.file
 
 defmodule Acceptances.ScrollTest do
-  use ExUnit.Case
+  use    ExUnit.Case
+  alias  Tirexs.ElasticSearch.Config
   import Tirexs.Search
   import Tirexs.Bulk
 
   test :scroll do
 
-    settings = Tirexs.ElasticSearch.Config.new()
+    settings = %Config{}
+    
     Tirexs.ElasticSearch.delete("bear_test", settings)
 
     Tirexs.Bulk.store [index: "bear_test", refresh: false], settings do
